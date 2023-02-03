@@ -19,10 +19,10 @@ function App() {
 		body: 'absolute flex flex-col bg-blue-200 h-[100vh] w-[100vw] overflow-hidden',
 		picCollection: 'flex flex-col min-h-0',
 		form: 'bg-blue-300 py-3',
-		icon: 'text-blue-200 h-10 w-10',
+		icon: 'text-blue-200 h-10 w-10 group-hover:text-blue-400',
 		picUploadInput: 'absolute z-[-1] opacity-0 w-0 h-0',
 		picUploadLabel:
-			'text-blue-500 hover:bg-blue-300/40 hover:text-white flex flex-row place-items-center justify-center gap-2 w-fit pr-1 mx-auto mt-4 rounded-lg py-2',
+			'border-2 text-blue-500 hover:text-blue-700 hover:bg-blue-100 flex flex-row place-items-center justify-center gap-2 w-fit pr-1 mx-auto mt-4 rounded-lg p-2 cursor-pointer group bg-white mb-3 transition',
 		collectionTitle:
 			'text-center text-blue-600 font-bold text-[36px] flow-root mx-auto my-4',
 		picsContainer:
@@ -99,14 +99,12 @@ function App() {
 			picListT.push(itemRef);
 		});
 
-		picListT.forEach(async (item) => {
+		for (const item of picListT) {
 			const itemURL = await getURL(item);
 			picListP.push(itemURL);
-		});
+		}
 
-		setTimeout(() => {
-			setPicsList(picListP.map((p) => p));
-		}, 1000);
+		setPicsList(picListP);
 	};
 
 	useEffect(() => {
