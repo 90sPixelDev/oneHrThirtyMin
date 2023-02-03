@@ -6,6 +6,8 @@ import {
 	brands,
 	icon,
 } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { storage } from './firebase.config';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 function App() {
 	const styles = {
@@ -22,6 +24,7 @@ function App() {
 	};
 
 	const [picInfo, setPicInfo] = useState('Add a picture to collection!');
+	const [picsList, setPicsList] = useState<string[]>([]);
 
 	const updatePicInfo = (e: React.ChangeEvent<HTMLInputElement>) => {
 		// Get the selected file
@@ -41,9 +44,49 @@ function App() {
 		setPicInfo(fileNameAndSize);
 	};
 
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const picInput = e.currentTarget[3] as HTMLInputElement;
+		const picFile = picInput.files![0] as File;
+
+		const storageRef = ref(storage, `pics/`);
+
+		console.log(picFile);
+
+		const uploadTask = uploadBytesResumable(storageRef, picFile);
+
+		uploadTask.on(
+			'state_changed',
+			(snapshot) => {
+				const progress =
+					(snapshot.bytesTransferred / snapshot.totalBytes) *
+					100;
+				console.log('Upload is ' + progress + '% done');
+				switch (snapshot.state) {
+					case 'paused':
+						console.log('Upload is paused');
+						break;
+					case 'running':
+						console.log('Upload is running');
+						break;
+				}
+			},
+			(error) => {
+				// Handle unsuccessful uploads
+			},
+			() => {
+				getDownloadURL(uploadTask.snapshot.ref).then(
+					async (downloadURL) => {
+						setPicsList([...picsList, downloadURL]);
+					}
+				);
+			}
+		);
+	};
+
 	return (
 		<div className={styles.body}>
-			<form className={styles.form}>
+			<form className={styles.form} onSubmit={handleSubmit}>
 				<label
 					htmlFor='image-file'
 					className={styles.picUploadLabel}
